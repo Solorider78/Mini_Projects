@@ -1,4 +1,3 @@
-import getpass
 import os
 import time
 import Coloured_text as colored_text
