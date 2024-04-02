@@ -10,8 +10,9 @@ personal = {
 
 
 info = f'Name: {personal["name"]}\nLast Name: {personal["last_name"]}\nAge: {personal["age"]}\nJob: {personal["job"]}\nInterests: {personal["interests"]}'
-
-# print(info)
+#
+# for k,v in personal.items():
+#     print(f'--{k.capitalize()}: {v}')
 
 
 # import requests
@@ -61,3 +62,5 @@ info = f'Name: {personal["name"]}\nLast Name: {personal["last_name"]}\nAge: {per
 # with open('hope_full_results.txt','w') as nf:
 #     nf.writelines(new_links)
 #     print('done')
+
+
