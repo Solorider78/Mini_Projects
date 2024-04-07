@@ -1,6 +1,4 @@
-import getpass
-import os
-import time
+import getpass, os ,time
 import Coloured_text as colored_text
 import requests,webbrowser,clipboard,subprocess
 from bs4 import BeautifulSoup
@@ -30,7 +28,12 @@ def scraper(*urls):
   links = []
   subtext = []
   for url in urls:
-    response = requests.get(url)
+    try:
+      response = requests.get(url)
+
+    except requests.exceptions.ConnectTimeout:
+      exit('Network Error..\nCheck Your Internet Connection....')
+
     soup = BeautifulSoup(response.text, 'html.parser')
     links += soup.select('.titleline')
     subtext += soup.select('.subtext')
@@ -99,5 +102,8 @@ def main():
 
 
 if __name__ == '__main__':
-  main()
-  
+  try:
+    main()
+  except KeyboardInterrupt:
+    print('Exited By User...')
+
