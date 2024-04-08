@@ -1,5 +1,8 @@
 import os,shutil,os.path,os,subprocess,math,datetime,pathlib
 from datetime import datetime
+from colorama import Fore,init
+init(convert=True)
+
 
 def clear_screen():
   os.system('cls' if os.name == 'nt' else 'clear')
@@ -44,8 +47,50 @@ def rename_sort_add_counter_to_beginning(folder):
 
   else:
     print('Nothing Were Renamed..')
-def delete_certain_files(folder): # Change It All To Be With Pathlib Module  ======= Can't! Would need to do all the code over again. FUUUUUCK @!
-  what_to_remove = input('What File Types You Want To Delete?\nRemember This Will Delete All Matching Files.(NO RECOVERY!)\n')
+
+def show_all_files(folder):
+  found_files = 0
+  found_folders = 0
+  file_index = 1
+
+  for item in os.listdir(folder):
+    full_path = os.path.join(folder, item)
+    file_size = os.path.getsize(full_path)
+
+    if os.path.isfile(full_path):
+      result = f'{file_index} | {item} | {full_path} | {convert_size(file_size)}'
+      print(Fore.YELLOW + result + Fore.RESET)
+      print('-' * len(result))
+      found_files += 1
+      file_index += 1
+
+    elif os.path.isdir(full_path):
+      result = f'{file_index} | {item} [ Folder ] | {full_path} | {get_inside_folder_files_size_formated(full_path)}'
+      print(Fore.CYAN + result + Fore.RESET)
+      print('-' * len(result))
+      found_folders += 1
+      file_index += 1
+
+  if found_folders or found_files > 0:
+    print('Showing:')
+  if found_files > 0:
+    print(f'{found_files} Matched Files.')
+  if found_folders > 0:
+    print(f'{found_folders} Matched Folders.')
+  if found_folders + found_files == 0:
+    print('No Matching Item.')
+
+  result = fr"* Showing All {len(os.listdir(folder))} Files\Folders."
+  print(result)
+  print('-' * len(result))
+
+
+def delete_certain_files(folder):
+  show_all_files(folder)
+  try:
+    what_to_remove = input('What File Types You Want To Delete?\nRemember This Will Delete All Matching Files.(NO RECOVERY!)\nExample: "mp3"\n')
+  except KeyboardInterrupt:
+    exit('User Exited..')
 
   if not '.' in what_to_remove :
     what_to_remove = '.' + what_to_remove
@@ -62,18 +107,21 @@ def delete_certain_files(folder): # Change It All To Be With Pathlib Module  ===
         file_size = convert_size(os.path.getsize(full_file_path))
         to_remove_counter +=1
         to_remove_list.append(full_file_path)
-
-      out_put = f'{file} | {file_size}'
-      print(out_put)
-      print('-' * len(out_put))
-
+        out_put = f'{file} | {file_size}'
+        print(out_put)
+        print('-' * len(out_put))
 
   if not to_remove_counter > 0:
     print('No Matching Files Were Found.')
 
   if to_remove_counter > 0 :
     print(f'Found {to_remove_counter} Matching Files.\n')
-    sure = input('Enter y To Confirm Deletion.\n')
+
+    try:
+      sure = input('Enter y To Confirm Deletion.\n')
+    except KeyboardInterrupt:
+      exit('User Exited..')
+
     if sure == 'y':
       for file in to_remove_list:
         os.remove(file)
@@ -86,50 +134,105 @@ def delete_certain_files(folder): # Change It All To Be With Pathlib Module  ===
   elif removed_counter == 1:
     print('One File Removed')
 def keep_certain_files(folder):
-  what_to_keep = input('What File Types You Want To Keep?\nRemember This Will Delete All Other File Types\n')
 
-  if not '.' in what_to_keep :
-    what_to_keep = '.' + what_to_keep
+  show_all_files(folder)
 
-  for file in os.listdir(folder):
-    full_file_path = folder + file
+  while True:
 
-    if os.path.isfile(full_file_path):
-      if os.path.splitext(file)[1] != what_to_keep :
-        print(file)
-        os.remove(full_file_path)
+    try:
+      what_to_keep = input('What File Types You Want To Keep?\n')
+    except KeyboardInterrupt:
+      exit('User Exited..')
 
-  print("Files Shown Above Were Removed.")
+    if what_to_keep == '':
+      print('You Should Enter a Format Type !!!')
+      print('All Files That Doesn\'t Have the Entered File Type Will Be Removed.')
+      continue
+
+    if not '.' in what_to_keep:
+      what_to_keep = '.' + what_to_keep
+
+    match_counter = 0
+    file_list = []
+    for file in os.listdir(folder):
+      full_file_path = folder + file
+      file_list.append(full_file_path)
+
+    for file in file_list:
+      if os.path.isfile(file):
+        if os.path.splitext(file)[1] != what_to_keep:
+          file_name = Fore.YELLOW + os.path.basename(file) + Fore.RESET
+          print(file_name)
+          os.remove(file)
+          match_counter += 1
+
+    if match_counter == 0:
+      print('No Files Were Removed.')
+
+    elif match_counter > 0:
+      print("Files Shown Above Were Removed.")
+
+    break
+
 def replace_letters(folder):
-  letters_to_remove = input('What Do You Want To Remove to Replace From File Names ?\n')
+
+  show_all_files(folder)
+
+  try:
+    letters_to_remove = input('What Do You Want To Remove to Replace From File Names ?\n')
+  except KeyboardInterrupt:
+    exit("User Exited..")
 
   to_rename = 0
   renamed_files = 0
   to_rename_list = []
+
   for file in os.listdir(folder):
-    full_path = folder + file
-    if letters_to_remove in os.path.splitext(file)[0] and os.path.isfile(full_path):
+    full_path = os.path.join(folder,file)
+    if letters_to_remove in os.path.basename(full_path):
       to_rename += 1
-      print(file)
+      print(Fore.YELLOW + file +Fore.RESET)
       to_rename_list.append(full_path)
   print(f'{to_rename} Files To Replace letters.')
 
   if to_rename > 0 :
-    letter_to_replace = input("What Do You Want To Replace The Words With ?\n")
-    rename = input('Rename ? (yes) to Continue.\n')
 
-    if rename.lower() == 'yes':
+    try:
+      letter_to_replace = input("What Do You Want To Replace The Words With ?\n")
+      rename = input('Rename ? (y) to Continue.\n')
+    except KeyboardInterrupt:
+      exit('User Exited..')
+
+    if rename.lower() == 'y':
       for file in to_rename_list:
-        new_file_name = file.replace(letters_to_remove, letter_to_replace)
-        new_full_path = os.path.join(folder, new_file_name)
-        os.rename(full_path, new_full_path)
-        print(f'Renamed: {file} --> {new_file_name}')
-        renamed_files += 1
-      print(f'{renamed_files} Files Been Renamed.')
+        new_file_name = os.path.basename(file).replace(letters_to_remove, letter_to_replace)
+        new_full_path = os.path.join(folder,new_file_name)
+        os.rename(file, new_full_path)
+
+        if os.path.isdir(new_full_path):
+          result = f'Renamed Folder: {os.path.basename(file)} --> {new_file_name}'
+          print(Fore.CYAN + result + Fore.RESET)
+          renamed_files += 1
+        elif os.path.isfile(new_full_path):
+          result = f'Renamed File: {os.path.basename(file)} --> {new_file_name}'
+          print(Fore.YELLOW + result + Fore.RESET)
+          renamed_files += 1
     else:
       print("No Files Were Renamed..")
+
+    if renamed_files > 1 :
+      print(f'{renamed_files} Files/Folders Been Renamed.')
+    elif renamed_files == 1:
+      print('File/Folder Was Rename Successfully..')
+
+
 def remove_letters(folder):
-  letters_to_remove = input('What Do You Want To Remove From File Names ?\n')
+
+  show_all_files(folder)
+  try:
+    letters_to_remove = input('What Do You Want To Remove From File Names ?\n')
+  except KeyboardInterrupt:
+    exit('User Exited..')
 
   to_rename = 0
   renamed_files = 0
@@ -141,14 +244,21 @@ def remove_letters(folder):
       to_rename_list.append(os.path.join(folder,file))
 
   print(f'{to_rename} Files To Rename.')
+
   if to_rename > 0 :
-    rename = input('Rename ? (yes) to Continue.\n')
-    if rename.lower() == 'yes':
+
+    try:
+      rename = input('Rename ? (y) to Continue.\n')
+    except KeyboardInterrupt:
+      exit('User Exited..')
+
+    if rename.lower() == 'y':
       for file in to_rename_list:
-          new_file_name = file.replace(letters_to_remove, '')
+          new_file_name = os.path.basename(file).replace(letters_to_remove, '')
           new_full_path = os.path.join(folder, new_file_name)
           os.rename(file, new_full_path)
-          print(f'Renamed: {file} --> {new_file_name}')
+          out = f'Renamed: {os.path.basename(file)} --> {os.path.basename(new_file_name)}'
+          print(Fore.YELLOW + out + Fore.RESET)
           renamed_files += 1
       print(f'{renamed_files} Files Been Renamed.')
     else:
@@ -157,10 +267,13 @@ def convert_size(size_bytes):
   if size_bytes == 0:
     return "0B"
   size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-  i = int(math.floor(math.log(size_bytes, 1024)))
-  p = math.pow(1024, i)
-  s = round(size_bytes / p, 2)
-  return "%s %s" % (s, size_name[i])
+  try:
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return "%s %s" % (s, size_name[i])
+  except Exception as err:
+    print(Fore.RED + 'Could Not Calculate the Size; Revise Code to Fix the Issue.' + Fore.RESET)
 def get_inside_folder_files_size_formated(folder):
   if not folder.endswith == '\\':
     folder = folder + ('\\')
@@ -182,7 +295,7 @@ def deep_search(folder,what_to_search):
 
       if what_to_search in item:
         file_info = f'{file_index} | {item} | {full_path} | {convert_size(item_size)}'
-        print(file_info)
+        print(Fore.YELLOW + file_info + Fore.RESET)
         print('-' * len(file_info))
         file_index += 1
         d_found_items += 1
@@ -192,8 +305,8 @@ def deep_search(folder,what_to_search):
       item_size = os.path.getsize(full_path)
 
       if what_to_search in directory:
-        result = f'{file_index} | ' + directory + ' [ Folder ]'+ f' | {full_path} | {convert_size(get_inside_folder_files_size(full_path))}'
-        print(result)
+        result = f'{file_index} | ' + directory + ' [ Folder ]'+ f' | {full_path} | {get_inside_folder_files_size_formated(full_path)}'
+        print(Fore.CYAN + result + Fore.RESET)
         print('-' * len(result))
         d_found_items += 1
         file_index += 1
@@ -230,98 +343,115 @@ def show_match_find(folder,what):
     print(f'{found_folders} Matched Folders')
   if found_folders + found_files == 0:
     print('No Matching Item.')
-def show_all_files(folder):
-  found_files = 0
-  found_folders = 0
-  file_index = 1
-
-  for item in os.listdir(folder):
-    full_path = os.path.join(folder, item)
-    file_size = os.path.getsize(full_path)
-
-    if os.path.isfile(full_path):
-      result = f'{file_index} | {item} | {full_path} | {convert_size(file_size)}'
-      print(result)
-      print('-' * len(result))
-      found_files += 1
-      file_index += 1
-
-    elif os.path.isdir(full_path):
-      result = f'{file_index} | {item} [ Folder ] | {full_path} | {get_inside_folder_files_size_formated(full_path)}'
-      print(result)
-      print('-' * len(result))
-      found_folders += 1
-      file_index += 1
-
-  if found_folders or found_files > 0:
-    print('Showing:')
-  if found_files > 0:
-    print(f'{found_files} Matched Files.')
-  if found_folders > 0:
-    print(f'{found_folders} Matched Folders.')
-  if found_folders + found_files == 0:
-    print('No Matching Item.')
-
-
-  result = fr"* Showing All {len(os.listdir(folder))} Files\Folders."
-  print(result)
-  print('-' * len(result))
 def File_copier():
 
-  try:
-    path_to_copy = input('Enter File\\Folder Path to Copy. \n')
-  except FileNotFoundError:
-    print('There is No File in Entered Directory.\nTry Again..\n')
+  while True:
+    try:
+      path_to_copy = input('Enter File\\Folder Path to Copy. or CTRL + C To Exit..\n')
+    except KeyboardInterrupt:
+      exit('User Exited..')
+
+    except FileNotFoundError:
+      exit('There is No File in Entered Directory.\nTry Again..\n')
 
 
-  if not path_to_copy.endswith('\\'):
-    path_to_copy = path_to_copy + '\\'
-
-  if os.path.isdir(path_to_copy):
-    print('Entered Path is a Folder.')
-    print(len(os.listdir(path_to_copy)),' Files Were Found')
-
-    copy_all = input('Copy All Items Inside The Folder (y)?\n')
-    if copy_all == 'y':
+    if os.path.isdir(path_to_copy):
+      print('Entered Path is a Folder.')
+      print(len(os.listdir(path_to_copy)), ' Files Were Found')
 
       try:
-        where_to_copy = input('Enter Where to Save File... \n')
-      except FileNotFoundError:
-        print('Invalid Directory.\nTry Again..\n')
+        copy_all = input('Copy All Items Inside The Folder (y)?\n')
+      except KeyboardInterrupt:
+        exit('\nUser Exited..')
 
-      for item in os.listdir(path_to_copy):
-        full_path = path_to_copy + item
-        shutil.copy(full_path, where_to_copy)
+      if copy_all == 'y':
 
-      print('Files Copied :) ')
+        try:
+          where_to_copy = input('Enter Where to Save File... \n')
+
+        except KeyboardInterrupt:
+          exit('User Exited..')
+        except FileNotFoundError:
+          exit('Invalid Directory.\nTry Again..\n')
 
 
-  elif os.path.isfile(path_to_copy):
-    print('Entered Path Is A File')
-    try:
-      where_to_copy =  input('Enter A Path To Copy The File To. \n')
-    except FileNotFoundError as err:
-      print(err)
+        iterated_folder = os.listdir(path_to_copy)
+        for item in iterated_folder:
 
-    shutil.copy(path_to_copy,where_to_copy)
+          if not path_to_copy.endswith('\\'):
+            path_to_copy = path_to_copy + '\\'
+
+          full_path = os.path.join(path_to_copy,item)
+
+          if os.path.isfile(full_path):
+            shutil.copy(full_path, where_to_copy)
+            out = f'{os.path.basename(full_path)} Copied To {where_to_copy}'
+            print(Fore.YELLOW + out + Fore.RESET)
+
+          elif os.path.isdir(full_path):
+            folder_name = os.path.basename(full_path)
+            where_to_copy = where_to_copy + ('\\') +folder_name
+            shutil.copytree(full_path,where_to_copy,dirs_exist_ok=True)
+            out = f'{os.path.basename(full_path)} Copied To {where_to_copy}'
+            print(Fore.YELLOW + out + Fore.RESET)
+
+      else:
+        print('Wrong Command Retry.')
+        continue
+
+
+      exit(f'{len(iterated_folder)} Files Copied :) ')
+
+
+
+    elif os.path.isfile(path_to_copy):
+      print('Entered Path Is A File')
+
+      try:
+        where_to_copy = input('Enter A Path To Copy The File To. \n')
+        if where_to_copy:
+          shutil.copy(path_to_copy, where_to_copy)
+          out = f'{os.path.basename(path_to_copy)} Copied to {where_to_copy}'
+          print(Fore.YELLOW + out + Fore.RESET)
+          exit("Done :) ")
+        else:
+          continue
+
+      except FileNotFoundError as err:
+        print(err)
+
+    else:
+      print('Invalid Entry.')
 def File_remover():
   while True:
-    to_delete = input('Enter a File or Folder Path to Remove. \n')
+
+    try:
+      to_delete = input('Enter a File or Folder Path to Remove. \n')
+    except KeyboardInterrupt:
+      exit('Uesr Exited..')
+
     if len(to_delete) != 0:
+
       if os.path.isfile(to_delete):
-        agree_to_remove = input(
-          'Entered Path is a File.\nContinue To Delete ?! \n(BE CAUTIOUS ! PERMENANT REMOVAL !)\nyes or no: ')
+
+        try:
+          agree_to_remove = input('Entered Path is a File.\nContinue To Delete ?! \n(BE CAUTIOUS ! PERMENANT REMOVAL !)\nyes to remove: ')
+        except KeyboardInterrupt:
+          exit('User Exited..')
+
         if agree_to_remove.lower() == 'yes':
           os.remove(to_delete)
-          print('File Removed. :) ')
+          print(f'{to_delete} Were Removed. :) ')
           break
         else:
           print('No File Was Removed. ')
           break
 
+
       elif os.path.isdir(to_delete):
-        agree_to_remove = input(
-          'Entered Path is a Folder.\nContinue To Delete ?! \n(BE CAUTIOUS ! PERMENANT REMOVAL !)\nyes or no: ')
+
+        agree_to_remove = input('Entered Path is a Folder.\nContinue To Delete ?! \n(BE CAUTIOUS ! PERMENANT REMOVAL !)\nyes or no: ')
+
         if agree_to_remove.lower() == 'yes':
           shutil.rmtree(to_delete)
           print('Folder Removed. :) ')
@@ -337,64 +467,89 @@ def File_remover():
       continue
 def File_editor():
   while True :
-    folder = input('Enter Folder Path to Rename or Arrange..\n')
+
+    try:
+      folder = input('Enter Folder Path to Rename or Arrange..\n')
+    except KeyboardInterrupt:
+      exit('User Exited..')
 
     if not os.path.isdir(folder):
-      print('Invalid Directory Entered. Retry.')
-      break
+      print('Invalid Directory.')
+      continue
 
     if not folder.endswith('\\'):
       folder = folder + '\\'
 
-
     print(f'{len(os.listdir(folder))} Files Detected (Including Subfolders).')
-    what_to_do = input('What Do You Want To Do With The Files ?\nTo Rename Files (rename)\nTo Remove File (remove)\n')
 
-    if what_to_do == 'rename':
+    try:
+      what_to_do = input('What Do You Want To Do With The Files ?\n1. To Rename Files \n2. To Remove File\n')
+    except KeyboardInterrupt:
+      exit('User Exited..')
 
-      rename_by = input('How Do You Want To Rename Your Files ?\n(remove letters {remove} - replace letters {replace} - {add counter} Adds a Counter to File Name )\n')
+    if what_to_do == '1':
 
-      if rename_by.lower() == 'remove':
+      try:
+        rename_by = input('How Do You Want To Rename Your Files ?\n1. remove letters \n2. replace letters \n3. Add a Counter to File Name\n')
+      except KeyboardInterrupt:
+        exit('User Exited..')
+
+      if rename_by.lower() == '1':
         remove_letters(folder)
         break
 
-      elif rename_by.lower() == 'replace':
+      elif rename_by.lower() == '2':
         replace_letters(folder)
         break
 
-      elif rename_by.lower() == 'add counter':
+      elif rename_by.lower() == '3':
         rename_sort_add_counter_to_beginning(folder)
         break
 
-    elif what_to_do == 'remove':
+    elif what_to_do == '2':
 
-      how_to_remove = input("keep (to keep certain type of files)\ndelete(to delete some type of files)\n")
+      try:
+        how_to_remove = input("Keep or Delete Certain Types of Files\n1. keep \n2. delete\n")
+      except KeyboardInterrupt:
+        exit('User Exited..')
 
-      if how_to_remove == "keep":
+      if how_to_remove == "1":
           keep_certain_files(folder)
           break
 
-      elif how_to_remove == "delete":
+      elif how_to_remove == "2":
           delete_certain_files(folder)
           break
 
     else:
-      print("Wrong Entry!\nTry Again..")
+      print("Invalid Entry.\n:")
   else:
-    print("Wrong Entry!\nTry Again..")
+    print("Wrong Entry!\n:")
 def File_finder():
-  folder = input("Enter The Path You Want To Search Through..\n")
-  print(f'{len(os.listdir(folder))} Items Found.')
+  try:
+    folder = input("Enter The Path You Want To Search Through..\n")
+    print(f'{len(os.listdir(folder))} Items Found.')
+  except FileNotFoundError:
+    exit('Need to Enter a Valid Directory.\nEx: D:\\Folder\\folder')
+  except KeyboardInterrupt:
+    exit('User Exit..')
 
-  what_to_search = input('What Do You Want To Find ?\n')
-  print("-" * len(what_to_search))
+  try:
+    what_to_search = input('What Do You Want To Find ?\n')
+    print("-" * len(what_to_search))
+  except KeyboardInterrupt:
+    exit("User Exit..")
 
   if what_to_search != '' :
     show_match_find(folder,what_to_search)
   elif what_to_search == '':
     show_all_files(folder)
 
-  deeper = input('Go Deeper ?  y/n\n')
+  try:
+    deeper = input(Fore.RED +'Go Deeper ?  y/n\n' + Fore.RESET)
+  except KeyboardInterrupt:
+    exit('User Exited..')
+
   if deeper == 'y':
     deep_search(folder,what_to_search)
 
@@ -526,7 +681,7 @@ def main():
   print('Enter a Command to continue..')
   print('1. To Copy File\\Folder.')
   print('2. To Delete A File (Completely).')
-  print('3. File Manipulations. (Remove - Rename - Sort /Files)')
+  print('3. File Manipulations. (Remove - Rename)')
   print('4. Search.')
   print('5. To Delete If A Word In File Name.')
   print('6. To View File Info.')
