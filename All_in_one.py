@@ -7,14 +7,15 @@ init(convert=True)
 def clear_screen():
   os.system('cls' if os.name == 'nt' else 'clear')
 def banner():
-  print(r'''  ____ _     _          ____ ____        ___  ____    ___ 
+  banner_st = r'''  ____ _     _          ____ ____        ___  ____    ___ 
  /    | |   | |        |    |    \      /   \|    \  /  _]
 |  o  | |   | |         |  ||  _  |    |     |  _  |/  [_ 
 |     | |___| |___      |  ||  |  |    |  O  |  |  |    _]
 |  _  |     |     |     |  ||  |  |    |     |  |  |   [_ 
 |  |  |     |     |     |  ||  |  |    |     |  |  |     |
 |__|__|_____|_____|    |____|__|__|     \___/|__|__|_____|
-                                                          ''')
+                                                          '''
+  print(Fore.RED + banner_st + Fore.RESET)
 def rename_sort_add_counter_to_beginning(folder):
 
   to_sort_counter = 0
@@ -527,15 +528,15 @@ def File_editor():
     print("Wrong Entry!\n:")
 def File_finder():
   try:
-    folder = input("Enter The Path You Want To Search Through..\n")
-    print(f'{len(os.listdir(folder))} Items Found.')
+    folder = input(Fore.LIGHTYELLOW_EX + "Enter The Path You Want To Search Through..\n" + Fore.RESET)
+    print(Fore.LIGHTGREEN_EX + f'{len(os.listdir(folder))} Items Found.' + Fore.RESET)
   except FileNotFoundError:
     exit('Need to Enter a Valid Directory.\nEx: D:\\Folder\\folder')
   except KeyboardInterrupt:
     exit('User Exit..')
 
   try:
-    what_to_search = input('What Do You Want To Find ?\n')
+    what_to_search = input(Fore.LIGHTYELLOW_EX + 'What Do You Want To Find ? (Press ENTER to Show All Files)\n' + Fore.RESET)
     print("-" * len(what_to_search))
   except KeyboardInterrupt:
     exit("User Exit..")
@@ -677,14 +678,14 @@ def files_info(folder):
 def main():
   clear_screen()
   banner()
-  print('Welcome To All_in_one Python Program.')
-  print('Enter a Command to continue..')
-  print('1. To Copy File\\Folder.')
+  print(Fore.LIGHTYELLOW_EX + 'Welcome To "All In One" Python Script.\n' + Fore.RESET)
+  print( r'1. To Copy File\Folder.')
   print('2. To Delete A File (Completely).')
   print('3. File Manipulations. (Remove - Rename)')
   print('4. Search.')
   print('5. To Delete If A Word In File Name.')
-  print('6. To View File Info.')
+  print('6. To View File Info.' )
+  print(Fore.LIGHTYELLOW_EX + 'Enter a Command to continue: ' + Fore.RESET)
   COMMAND = input()
 
   if COMMAND.lower() == '1':
@@ -705,7 +706,12 @@ def main():
 
 
 if __name__ == "__main__":
-  main()
+  try:
+    main()
+  except KeyboardInterrupt:
+    exit(Fore.RED + '\nUser Exited..' + Fore.RESET)
+  except Exception as err :
+    exit(f"Error\nDetails: {err}")
 
 
 
