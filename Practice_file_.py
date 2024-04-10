@@ -1,66 +1,41 @@
-personal = {
-    'name': 'amir',
-    'last_name': 'ajvad',
-    'age': 23,
-    'job': 'sales,programming',
-    'interests': 'Not sure',
+import requests,socket,validators
+from colorama import Fore,init
+
+init(convert=True)
+
+def validate_url(url):
+  val = validators.url(url)
+  if val == True:
+    if 'https://' in url:
+      shot_url = url[8:]
+      check = socket.gethostbyname(shot_url)
+
+      return (True,check)
+
+    elif 'http://' in url:
+      short_url = url[7:]
+      check = socket.gethostbyname(short_url)
+
+      return (True,check)
+  else:
+    print('Invalid URL.')
 
 
-}
+try:
 
+  get_url = input('Enter a URL: ')
+  check_url = validate_url(get_url)
 
-info = f'Name: {personal["name"]}\nLast Name: {personal["last_name"]}\nAge: {personal["age"]}\nJob: {personal["job"]}\nInterests: {personal["interests"]}'
-#
-# for k,v in personal.items():
-#     print(f'--{k.capitalize()}: {v}')
+  if check_url[0] == True:
+    out = f'IP: {check_url[1]}'
+    print(Fore.YELLOW + out + Fore.RESET)
 
+except socket.gaierror:
+  print('URL Not Found.')
 
-# import requests
-# from bs4 import BeautifulSoup
-# links = []
-# respond = requests.get(r'https://musiceto.com/music-shade-ghadimi/')
-#
-# soup = BeautifulSoup(respond.text,'html.parser')
-#
+except KeyboardInterrupt:
+  print('Uesr Exited.')
 
-# links.append()
-
-
-# for item in soup.select('a[rel=nofollow]'):
-#   links.append(item)
-# with open('result.txt','w') as f:
-#     for i in links:
-#         f.write(str(i))
-#
-#     print('done')
-
-# with open('result.txt') as f:
-#     text = f.read()
-#
-# if ' ' in text:
-#     new_text = text.replace(' ','\n')
-#     print('done')
-#
-# with open('new_result.txt','w') as nf:
-#     nf.write(new_text)
-
-# with open('final_result.txt') as f:
-#     text = f.read()
-#     new_text = text.replace('"','')
-#     print('done fixing')
-# with open('final_result2.txt','w') as nf:
-#     nf.write(new_text)
-#     print('done writing..')
-
-# with open(r'F:\Codings\Solorider78\final_result2.txt') as f:
-#     new_links = []
-#     links = f.readlines()
-#     for link in links:
-#         link = '"'+link+'"'
-#         new_links += link + ','
-#
-# with open('hope_full_results.txt','w') as nf:
-#     nf.writelines(new_links)
-#     print('done')
-
+except TypeError:
+  pass
 
