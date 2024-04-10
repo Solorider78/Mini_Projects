@@ -1,8 +1,8 @@
-import getpass, os ,time
-import Coloured_text as colored_text
-import requests,webbrowser,clipboard,subprocess
+import getpass, os ,time ,requests,webbrowser,clipboard,subprocess
+from  colorama import Fore,init
 from bs4 import BeautifulSoup
 
+init(convert=True)
 
 TEXT_FILE = 'Handpicked Hacker News Links.txt'
 
@@ -20,8 +20,8 @@ def clear_screen():
 
 def save_in_file(story):
   with open(TEXT_FILE, 'a+') as f :
-    f.write(f'Title ==> {story['Title']}; Link ==> {story['Link']}\n')
-    print("Data saved in text file. ")
+    f.write(f'Title : {story['Title']}, Link : {story['Link']}\n')
+    print(Fore.GREEN + "Data saved in text file." + Fore.RESET)
 
 # Takes a URL and retrives Contents of Titles, Links and Votes as Subtexts with CSS selectors
 def scraper(*urls):
@@ -58,46 +58,55 @@ def create_custom_hn(links, subtext):
 
 def main():
   clear_screen()
-  print(colored_text.green_text(banner()))
+  print(Fore.RED + banner() + Fore.RESET)
   links, subtext = scraper('https://news.ycombinator.com/','https://news.ycombinator.com/?p=2')
   custom_news = create_custom_hn(links, subtext)  # *create_custom_hn* Function is ran and saved in a variable
 
   # Outputs an indexed news Titles and number of Votes It has
   for counter, story in enumerate(custom_news, 1):
     time.sleep(.2)
-    # news =
-    print(colored_text.yellow_text(counter), story['Title'], f"{story['points']} Votes.")
+
+    print(Fore.YELLOW + str(counter) + Fore.RESET, story['Title'], f"{story['points']} Votes.")
 
   # Takes an input as News Indexer to return the link to that news
   while True:
+
     try:
-      to_get_story = input("==> Enter News Number To get Its link or 'x' to exit: ")
+
+      to_get_story = input( Fore.YELLOW +"==> Enter News Number To Get It's Link or 'x' to exit: " + Fore.RESET)
       if to_get_story == 'x':
         clear_screen()
-        print(colored_text.green_text(banner()))
-        exit('Bye!')
+        print(Fore.RED + banner() + Fore.RESET)
+        exit(Fore.GREEN + 'Bye!' + Fore.RESET)
         break
+
       to_get_story = int(to_get_story) - 1
       if 0 <= to_get_story < len(custom_news):  # Controls the input to be within the Range of News
         selected_story = custom_news[to_get_story]
-        browse = input("Open in Browser [b] or copy link to Clipboard [c] or save to text file [t] ?  ")
-        if browse == "b".lower():
+        browse = input(Fore.YELLOW + "Open in Browser [b] or copy link to Clipboard [c] or save to text file [t] ?  " + Fore.RESET)
+
+        if browse == "b":
           webbrowser.open(selected_story['Link'])
-          print("Opened in Browser..")
-        elif browse == 'c'.lower():
+          print(Fore.GREEN +"Opened in a Browser.." + Fore.RESET)
+
+        elif browse == 'c':
           clipboard.copy(selected_story['Link'])
-          print("Link copied to clipboard. ")
+          print(Fore.GREEN +"Link copied to clipboard. " + Fore.RESET)
+
         elif browse == 't':
           save_in_file(selected_story)
+
         else:
-          print('Wrong Entry ( b or c or t )')
+          print(Fore.RED +'Invalid Entry.' + Fore.RESET)
         continue
+
       else:
-        print("Invalid input. Please enter a valid news number.")
+        print(Fore.RED + "Invalid input. Please enter a valid news number." + Fore.RESET)
 
     except ValueError:
-      print('Please Enter a Number to Access a News or "x" to exit.')
+      print(Fore.RED + 'Invalid Entry.' + Fore.RESET)
       continue
+
 
 
 
@@ -105,5 +114,5 @@ if __name__ == '__main__':
   try:
     main()
   except KeyboardInterrupt:
-    print('Exited By User...')
+    print(Fore.RED + '\nExited By User...' + Fore.RESET)
 
